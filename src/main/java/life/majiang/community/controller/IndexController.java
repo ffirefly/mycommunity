@@ -1,36 +1,33 @@
 package life.majiang.community.controller;
 
-import life.majiang.community.mapper.UserMapper;
-import life.majiang.community.model.User;
+import life.majiang.community.dto.PaginationDTO;
+import life.majiang.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class IndexController {
 
+
     @Autowired
-    UserMapper userMapper;
+    QuestionService questionService;
+
     @RequestMapping("/")
-    public String index(HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if(cookies!=null&&cookies.length != 0){
-            for(int i = 0;i < cookies.length;i++){
-                if(cookies[i].getName().equals("token")){
-                    String token = cookies[i].getValue();
-                    User user = userMapper.findByToken(token);
-                    if(user != null ){
-                        request.getSession().setAttribute("user",user);
-                        break;
-                    }
+    public String index(HttpServletRequest request,
+                        Model model,
+                        @RequestParam(name = "page",defaultValue = "1")Integer page,
+                        @RequestParam(name = "size",defaultValue = "2")Integer size,
+                        @RequestParam(name = "search",required = false)String search
+                        ){
 
-                }
-
-            }
-        }
+        PaginationDTO paginationDTO = questionService.list(search,page,size);
+        model.addAttribute("paginationIndex",paginationDTO);
+        model.addAttribute("search",search);
 
 /*        for(Cookie cookie:cookies){
             if(cookie.getName().equals("token")){
